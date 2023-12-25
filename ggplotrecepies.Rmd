@@ -44,8 +44,8 @@ mpg %>%
   aes( x = manufacturer,
        y = n) +
   geom_bar(stat = "identity") +
-  theme_minimal()
-
+  theme_minimal() 
+mpg
 
 
 ```
