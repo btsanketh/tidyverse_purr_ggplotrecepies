@@ -6,12 +6,136 @@ output: html_document
 ---
 
 ```{r}
-
+rm(list = ls())
 #Packages
 library(hflights)
 library(tidyverse)
 library(ggplot2)
-mpg
+library(cowplot)
+```
+
+```{r}
+###Reading in multiple files and using pattern matching ############
+
+
+
+
+
+
+
+```
+
+
+```{r}
+#===========Basics===================
+starwars %>%
+  select(gender, mass, height, species) %>%
+  filter(species == "Human") %>%
+  na.omit() %>%
+  mutate(height = height /100) %>%
+  mutate(bmi = mass / height^2) %>%
+  group_by(gender) %>%
+  summarise(Average_BMI = mean(bmi))
+
+data <- starwars %>%
+  select(gender, mass, height, species) %>%
+  filter(species == "Human") %>%
+  na.omit() %>%
+  mutate(height = height/100) %>%
+  mutate(bmi = mass/height^2)
+
+str(data)
+#Factors and reordering them 
+data$gender <- as.factor(data$gender)
+#data$gender
+levels(data$gender)
+data$gender <- factor(data$gender,
+                      levels = c("masculine","feminine"))
+
+##Adding a logical to obesity based on mean bmi
+data$bmi > mean(data$bmi)
+data$obese <- data$bmi > mean(data$bmi)
+
+#Additional fitlering 
+sw <- starwars %>%
+  select(name, height, mass , gender) %>%
+  rename(weight = mass) %>%
+  na.omit() %>%
+  mutate(height = height/100) %>%
+  filter(gender %in% c("masculine","feminine")) %>%
+  mutate(gender = recode(gender,
+                         masculine = "m",
+                         feminine = "f")) %>%
+  mutate(size = height > 1 & weight > 75,
+         size = if_else(size == TRUE, "big", "small"))
+  #%>%
+  #group_by(gender, size) %>%
+  #summarise(n = n())
+
+#Between and near function for filtering
+view(msleep)
+#Between a range 
+msleep %>%
+  filter(between(sleep_total,16,18)) 
+#Near a value 
+msleep %>%
+  filter(near(sleep_total,17,tol = 0.5))
+
+##Filtering with NAs : Getting all values with NAs in conservation
+msleep %>%
+  select(name, conservation, sleep_total) %>%
+  filter(is.na(conservation))
+
+##Filtering and excluding all values with NAs 
+msleep %>%
+  select(name, conservation, sleep_total) %>%
+  filter(!is.na(conservation))
+
+```
+
+
+```{r}
+##ggplot basics 
+
+BOD
+
+ggplot(data = BOD) +
+  aes(x = Time,
+      y = demand) +
+  geom_point(size = 3) +
+  geom_line(color = "red")
+
+view(CO2)
+
+CO2 %>%
+  ggplot()+
+  aes(x = conc,
+      y = uptake,
+      color = Treatment) +
+  geom_point(size = 3,
+             alpha = 0.5) +
+  geom_smooth(method = lm, se = F)+
+  facet_wrap(~Type)+
+  labs(title = "Concentration of co2") +
+  theme_bw()
+  
+
+CO2 %>%
+  ggplot(aes(x = Treatment, 
+             y = uptake)) +
+  geom_boxplot() +
+  geom_point(alpha = 0.5,
+             aes(size = conc,
+                 color = Plant)) +
+  #coord_flip()
+  facet_wrap(~Type)+
+  theme_bw()+
+  labs(title = "CO2 uptake")
+
+
+
+
+
 
 ```
 
@@ -19,34 +143,133 @@ mpg
 
 ```
 
-
 ```{r}
 
 ```
 
 ```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-#Histograms 
-mpg
-mpg %>% 
+#########################Bar graphs and Histograms ####################
+p1 <- mpg %>% 
   group_by(manufacturer) %>%
   summarise(n = n()) %>%
   arrange(desc(n)) %>%
+  slice(1:5)%>%
   mutate(manufacturer = factor(manufacturer, unique(manufacturer))) %>%
   ggplot() +
   aes( x = manufacturer,
-       y = n) +
+       y = n,
+       fill = manufacturer) +
   geom_bar(stat = "identity") +
+  scale_fill_brewer(palette = 1) +
   theme_minimal() 
-mpg
+
+p2 <- mpg %>% 
+  group_by(cyl) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n)) %>%
+  mutate(cyl = factor(cyl, unique(cyl))) %>%
+  ggplot() +
+  aes( x = cyl,
+       y = n,
+       fill = cyl) +
+  geom_bar(stat = "identity") +
+  scale_fill_brewer(palette = 2) +
+  theme_minimal() 
+
+plot_grid(p1, p2, nrow = 1)
+```
+
+
+```{r}
+#================= Bar/graphs + Histograms ======================================
+names(msleep)
+msleep %>%
+  drop_na(vore) %>%
+  ggplot(aes(x = vore))+
+  geom_bar(fill = "#97b3c6" ) +
+  theme_bw() +
+  labs(x = "Vore",
+       y = "No of animals",
+       title = "No of animals per type")
+
 
 
 ```
+
+
+
+
+
+
+
+```{r}
+#########################Box plots  ####################
+
+
+
+
+
+
+
+
+
+
+```
+
+
+
+```{r}
+######################### Heat Maps####################
+
+
+
+
+```
+
+
+```{r}
+#==============Density plots ======================
+
+
+
+
+```
+
+
+```{r}
+############Theme customise theme #############
+
+
+
+
+```
+
+
+```{r}
+####Statistical test #########
+
+
+
+
+```
+
+
+
+```{r}
+##################sub/gsub/grep/pattern matching ####################
+
+
+
+
+```
+
+```{r}
+###### apply function examples ###############
+
+
+```
+
+
+
+
 
