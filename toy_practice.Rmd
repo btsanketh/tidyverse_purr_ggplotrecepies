@@ -1,0 +1,105 @@
+---
+title: "toy_example"
+author: "Sanketh"
+date: "2024-01-02"
+output: html_document
+---
+
+# Setting the directory 
+
+```{r}
+library(tidyverse)
+library(Seurat)
+library(ggplot2)
+library(stringr)
+#install.packages("Matrix")
+library(Matrix)
+setwd("/Users/sanketh/Desktop/toydata_practice/")
+getwd()
+dataDir <- ("/Users/sanketh/Desktop/toydata_practice/data/")
+```
+
+```{bash}
+cd ./data
+tar xvf GSE225773_RAW.tar
+rm GSE225773_RAW.tar
+```
+
+```{r}
+read_counts <- function(file){
+  x <- expr_mat <- readMM(file) %>%
+  as.matrix()
+  sample <- basename(file)
+  sample <- str_replace(sample, "_matrix.*", "")
+  genes_x <- read.table(file = paste0(dataDir,sample,"_genes.tsv.gz"), header = F, sep = "\t")
+  genes <- genes_x[,1]
+  barcodes_x <- read.table(file = paste0(dataDir,sample,"_barcodes.tsv.gz"), header = F, sep = "\t")
+  barcodes <- paste0(barcodes_x[,1],"_",sample)
+  row.names(x) <- genes
+  colnames(x) <- barcodes 
+  return(x)
+}
+```
+
+```{r}
+counts_files <- list.files(path = "./data/", full.names = T, pattern = "*.mtx.gz")
+samples <- map_chr(counts_files,basename)
+samples <- str_replace(samples, "_matrix.*", "")
+names(counts_files) <- samples
+counts <- purrr::map(counts_files[1:4],read_counts)
+```
+
+```{r}
+##Write code to create metadata for the cells mentining : 
+#1)the mutation type 
+#2)the sample 
+#3) 
+```
+
+```{r}
+library(Matrix)
+objs <- purrr::map2(names(counts), counts, ~CreateSeuratObject(counts = .y))
+names(objs) <- names(counts)
+```
+
+```{r}
+merged_seurat <- purrr::reduce(objs, function(x,y) {merge(x,y)})
+```
+
+
+##
+```{r}
+
+```
+
+
+
+
+
+
+```{r}
+expr_mat <- readMM(file = "./data/GSM7056033_30week_dnmt3a_45_1_matrix.mtx.gz") %>%
+  as.matrix()
+
+dim(expr_mat)
+```
+
+```{r}
+genes_data <- read.table(file = "./data/GSM7056033_30week_dnmt3a_45_1_genes.tsv.gz", header = F, sep = "\t")
+```
+
+```{r}
+barcodes <- read.table(file = "./data/GSM7056033_30week_dnmt3a_45_1_barcodes.tsv.gz", header = F, sep = "\t")
+```
+
+```{r}
+row.names(expr_mat) <- genes_data$V1
+colnames(expr_mat) <- barcodes$V1
+head(expr_mat)
+```
+
+```{r}
+sce <- CreateSeuratObject(counts = expr_mat, assay = "RNA")
+rm(list = ls())
+```
+
